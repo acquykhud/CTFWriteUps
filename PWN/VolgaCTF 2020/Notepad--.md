@@ -1,32 +1,31 @@
-
-# Notepad- -
+# Notepad--
 > xikhud, 28/03/2020.
 
 ## Hint
-Basic Use after free problem.
+Basic use-after-free problem.
 
 ## Vulnerability
 There is an off-by-one error when we update or view the tab, this lets us to leak the libc, and make malloc return an arbitrary address.
 ```cpp
 unsigned __int64 __fastcall view_tab(book *a1, __int64 a2)
 {
-		//  truncated
-  if ( v3 >= 0 && v3 <= (signed __int64)a1->tab_count ) // -> should be "<" instead of "<="
-  {
-    write(1, a1->tabs[v3].data, a1->tabs[v3].size);
-  }
-		// ......
+    //  truncated
+    if (v3 >= 0 && v3 <= (signed __int64) a1->tab_count)    // -> should be "<" instead of "<="
+    {
+        write(1, a1->tabs[v3].data, a1->tabs[v3].size);
+    }
+    // ......
 }
 ```
 
 ## Plan
-First we malloc a chunk that is not in tcache range ( > 1024 bytes is enough).
-Then we malloc a random chunk so that when we free the chunk above, it doesn't merge with top chunk.
-Then we free the first chunk, use the off-by-one error to leak "main_arena + 96".
-Then use libc data base, we know that the version of the libc is 2.27.
+First we allocate a chunk that is not in tcache range ( > 1024 bytes is enough).
+Then we allocate another chunk so that when we free the chunk above, it doesn't merge with top chunk.
+Then we free the first chunk, use the off-by-one error to leak `main_arena + 96`.
+Then search in [libc database](https://libc.nullbyte.cat), we know that the version of the libc is 2.27.
 Then we leak the libc base address. Now we get all the addresses we need.
-With UAF vulnerbility, we modify the tcache, make malloc return &__free_hook.
-Replace __free_hook with system address, when we call free("/bin/sh"), we will have a shell.
+With UAF vulnerability, we modify the tcache, make `malloc` return `&__free_hook`.
+Replace `__free_hook` with `system` address, when we call `free("/bin/sh")`, we will have a shell.
 
 
 ## Final Solution
