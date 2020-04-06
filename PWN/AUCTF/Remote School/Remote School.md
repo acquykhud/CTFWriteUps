@@ -38,7 +38,6 @@ At `test` function, as commented, you can overwrite `XXXX` and `p`, it give you 
 from pwn import *
 context.binary = "./online"
 
-#quitr = process("./online", aslr=False)
 r = remote("challenges.auctf.com", 30013)
 r.sendlineafter("Name:", "LongChampion")
 r.sendlineafter("menu]:", "attend Hacker")
