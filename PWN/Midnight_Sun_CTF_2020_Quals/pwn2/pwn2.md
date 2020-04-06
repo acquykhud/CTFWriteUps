@@ -26,7 +26,7 @@ void __cdecl __noreturn main(int a1)
 }
 ```
 Well, you can see that these is a format string vulnerable.  
-First, I overwrite free_got with main_addr to create a loop, so we can use this vulnerable multiple times. After that, I use format string to scan the return address of main to leak libc base address. Finally, I overwrite printf_got with `system` then type `/bin/sh` to pop a shell.
+First, I overwrite `free_got` with main_addr to create a loop, so we can use this vulnerable multiple times. After that, I use format string to scan the return address of main to leak libc base address. Finally, I overwrite `printf_got` with `system` then type `/bin/sh` to pop a shell.
 
 ## Solution
 ```python
